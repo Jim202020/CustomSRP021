@@ -33,7 +33,7 @@ public class CameraRenderer {
 	}
 
 	void Submit () {
-        buffer.BeginSample(bufferName);
+        buffer.EndSample(bufferName);
 		ExecuteBuffer();
 		context.Submit();
 	}
