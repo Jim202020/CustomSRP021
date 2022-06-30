@@ -23,9 +23,10 @@ public class CameraRenderer {
 	}
 
     void Setup () {
-        buffer.BeginSample(bufferName);
+        context.SetupCameraProperties(camera);
+		buffer.ClearRenderTarget(true, true, Color.clear);
+		buffer.BeginSample(bufferName);
 		ExecuteBuffer();
-		context.SetupCameraProperties(camera);
 	}
 
     void DrawVisibleGeometry () {
