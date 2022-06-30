@@ -2,7 +2,13 @@
 using UnityEngine.Rendering;
 
 public class CustomRenderPipeline : RenderPipeline {
-    protected override void Render (
+    CameraRenderer renderer = new CameraRenderer();
+
+	protected override void Render (
 		ScriptableRenderContext context, Camera[] cameras
-	) {}
+	) {
+		foreach (Camera camera in cameras) {
+			renderer.Render(context, camera);
+		}
+	}
 }
