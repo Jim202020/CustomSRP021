@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 public partial class CameraRenderer {
+	partial void PrepareForSceneWindow ();
 	partial void DrawGizmos ();
 	partial void DrawUnsupportedShaders ();
 
@@ -17,6 +18,12 @@ public partial class CameraRenderer {
 	};
 
 	static Material errorMaterial;
+
+	partial void PrepareForSceneWindow () {
+		if (camera.cameraType == CameraType.SceneView) {
+			ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
+		}
+	}
 
 	partial void DrawGizmos () {
 		if (Handles.ShouldRenderGizmos()) {
