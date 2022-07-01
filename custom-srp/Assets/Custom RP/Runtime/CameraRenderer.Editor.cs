@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 public partial class CameraRenderer {
+	partial void DrawGizmos ();
 	partial void DrawUnsupportedShaders ();
-	
+
 #if UNITY_EDITOR
 	static ShaderTagId[] legacyShaderTagIds = {
 		new ShaderTagId("Always"),
@@ -15,6 +17,13 @@ public partial class CameraRenderer {
 	};
 
 	static Material errorMaterial;
+
+	partial void DrawGizmos () {
+		if (Handles.ShouldRenderGizmos()) {
+			context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+			context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+		}
+	}
 
 	partial void DrawUnsupportedShaders () {
 		if (errorMaterial == null) {
