@@ -13,13 +13,27 @@ public class CameraRenderer {
 		name = bufferName
 	};
 
+	CullingResults cullingResults;
+
 	public void Render (ScriptableRenderContext context, Camera camera) {
 		this.context = context;
 		this.camera = camera;
 
+		if (!Cull()) {
+			return;
+		}
+
         Setup();
 		DrawVisibleGeometry();
 		Submit();
+	}
+
+	bool Cull () {
+		if (camera.TryGetCullingParameters(out ScriptableCullingParameters p)) {
+			cullingResults = context.Cull(ref p);
+			return true;
+		}
+		return false;
 	}
 
     void Setup () {
