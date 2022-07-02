@@ -19,9 +19,10 @@ public partial class CameraRenderer {
 	};
 
 	static Material errorMaterial;
+	string SampleName { get; set; }
 
 	partial void PrepareBuffer () {
-		buffer.name = camera.name;
+		buffer.name = SampleName = camera.name;
 	}
 
 	partial void PrepareForSceneWindow () {
@@ -58,5 +59,7 @@ public partial class CameraRenderer {
 			cullingResults, ref drawingSettings, ref filteringSettings
 		);
 	}
+#else
+	const string SampleName = bufferName;
 #endif
 }
