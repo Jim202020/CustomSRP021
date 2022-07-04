@@ -5,7 +5,7 @@ public class CustomRenderPipeline : RenderPipeline {
     CameraRenderer renderer = new CameraRenderer();
 
 	public CustomRenderPipeline () {
-		GraphicsSettings.useScriptableRenderPipelineBatching = true;
+		GraphicsSettings.useScriptableRenderPipelineBatching = false;
 	}
 
 	protected override void Render (

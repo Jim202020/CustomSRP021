@@ -62,7 +62,10 @@ public partial class CameraRenderer {
 		};
 		var drawingSettings = new DrawingSettings(
 			unlitShaderTagId, sortingSettings
-		);
+		){
+			enableDynamicBatching = true,
+			enableInstancing = false
+		};
 		var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
 		context.DrawRenderers(
@@ -72,9 +75,7 @@ public partial class CameraRenderer {
 		context.DrawSkybox(camera);
 
 		sortingSettings.criteria = SortingCriteria.CommonTransparent;
-		drawingSettings = new DrawingSettings(
-			unlitShaderTagId, sortingSettings
-		);
+		drawingSettings.sortingSettings = sortingSettings;
 		filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 
 		context.DrawRenderers(
