@@ -2,8 +2,11 @@
 using UnityEngine.Rendering;
 
 public class CustomRenderPipeline : RenderPipeline {
-    CameraRenderer renderer = new CameraRenderer();
+
+	CameraRenderer renderer = new CameraRenderer();
+
 	bool useDynamicBatching, useGPUInstancing;
+
 	public CustomRenderPipeline (
 		bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher
 	) {

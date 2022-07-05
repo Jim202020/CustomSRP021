@@ -3,32 +3,34 @@ using UnityEngine.Rendering;
 
 public partial class CameraRenderer {
 
-	ScriptableRenderContext context;
+	const string bufferName = "Render Camera";
 
-	Camera camera;
-
-    const string bufferName = "Render Camera";
+	static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
 	CommandBuffer buffer = new CommandBuffer {
 		name = bufferName
 	};
 
-	CullingResults cullingResults;
-	static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+	ScriptableRenderContext context;
 
-	public void Render (ScriptableRenderContext context, Camera camera,
-	bool useDynamicBatching, bool useGPUInstancing) {
+	Camera camera;
+
+	CullingResults cullingResults;
+
+	public void Render (
+		ScriptableRenderContext context, Camera camera,
+		bool useDynamicBatching, bool useGPUInstancing
+	) {
 		this.context = context;
 		this.camera = camera;
 
 		PrepareBuffer();
-		PrepareForSceneWindow ();
-
+		PrepareForSceneWindow();
 		if (!Cull()) {
 			return;
 		}
 
-        Setup();
+		Setup();
 		DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
 		DrawUnsupportedShaders();
 		DrawGizmos();
@@ -43,8 +45,8 @@ public partial class CameraRenderer {
 		return false;
 	}
 
-    void Setup () {
-        context.SetupCameraProperties(camera);
+	void Setup () {
+		context.SetupCameraProperties(camera);
 		CameraClearFlags flags = camera.clearFlags;
 		buffer.ClearRenderTarget(
 			flags <= CameraClearFlags.Depth,
@@ -56,14 +58,24 @@ public partial class CameraRenderer {
 		ExecuteBuffer();
 	}
 
-    void DrawVisibleGeometry (bool useDynamicBatching, bool useGPUInstancing) {
-		var sortingSettings = new SortingSettings(camera)
-		{
+	void Submit () {
+		buffer.EndSample(SampleName);
+		ExecuteBuffer();
+		context.Submit();
+	}
+
+	void ExecuteBuffer () {
+		context.ExecuteCommandBuffer(buffer);
+		buffer.Clear();
+	}
+
+	void DrawVisibleGeometry (bool useDynamicBatching, bool useGPUInstancing) {
+		var sortingSettings = new SortingSettings(camera) {
 			criteria = SortingCriteria.CommonOpaque
 		};
 		var drawingSettings = new DrawingSettings(
 			unlitShaderTagId, sortingSettings
-		){
+		) {
 			enableDynamicBatching = useDynamicBatching,
 			enableInstancing = useGPUInstancing
 		};
@@ -77,21 +89,10 @@ public partial class CameraRenderer {
 
 		sortingSettings.criteria = SortingCriteria.CommonTransparent;
 		drawingSettings.sortingSettings = sortingSettings;
-		filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
+		filteringSettings.renderQueueRange = RenderQueueRange.transparent;
 
 		context.DrawRenderers(
 			cullingResults, ref drawingSettings, ref filteringSettings
 		);
-	}
-
-	void Submit () {
-        buffer.EndSample(SampleName);
-		ExecuteBuffer();
-		context.Submit();
-	}
-
-    void ExecuteBuffer () {
-		context.ExecuteCommandBuffer(buffer);
-		buffer.Clear();
 	}
 }
