@@ -1,3 +1,4 @@
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,14 +13,21 @@ public class Lighting {
     static int
 		dirLightColorId = Shader.PropertyToID("_DirectionalLightColor"),
 		dirLightDirectionId = Shader.PropertyToID("_DirectionalLightDirection");
+
+    CullingResults cullingResults;
 	
-	public void Setup (ScriptableRenderContext context) {
+	public void Setup (ScriptableRenderContext context, CullingResults cullingResults) {
+        this.cullingResults = cullingResults;
 		buffer.BeginSample(bufferName);
-		SetupDirectionalLight();
+		SetupLights();
 		buffer.EndSample(bufferName);
 		context.ExecuteCommandBuffer(buffer);
 		buffer.Clear();
 	}
+
+    void SetupLights () {
+        NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
+    }
 	
 	void SetupDirectionalLight () {
 		Light light = RenderSettings.sun;
