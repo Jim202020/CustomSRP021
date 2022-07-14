@@ -83,6 +83,11 @@ public class CustomShaderGUI : ShaderGUI {
 		}
 	}
 
+    bool HasProperty (string name) =>
+		FindProperty(name, properties, false) != null;
+
+    bool HasPremultiplyAlpha => HasProperty("_PremulAlpha");
+
     bool PresetButton (string name) {
 		if (GUILayout.Button(name)) {
 			editor.RegisterPropertyChangeUndo(name);
@@ -125,7 +130,7 @@ public class CustomShaderGUI : ShaderGUI {
 	}
 
     void TransparentPreset () {
-		if (PresetButton("Transparent")) {
+		if (HasPremultiplyAlpha && PresetButton("Transparent")) {
 			Clipping = false;
 			PremultiplyAlpha = true;
 			SrcBlend = BlendMode.One;
