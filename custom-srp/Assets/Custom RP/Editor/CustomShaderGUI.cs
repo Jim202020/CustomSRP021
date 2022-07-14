@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -7,57 +7,14 @@ public class CustomShaderGUI : ShaderGUI {
 	MaterialEditor editor;
 	Object[] materials;
 	MaterialProperty[] properties;
-    bool showPresets;
 
-	public override void OnGUI (
-		MaterialEditor materialEditor, MaterialProperty[] properties
-	) {
-		base.OnGUI(materialEditor, properties);
-		editor = materialEditor;
-		materials = materialEditor.targets;
-		this.properties = properties;
+	bool showPresets;
 
-        EditorGUILayout.Space();
-		showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
-		if (showPresets) {
-			OpaquePreset();
-			ClipPreset();
-			FadePreset();
-			TransparentPreset();
-		}
-	}
-
-    bool SetProperty (string name, float value) {
-		MaterialProperty property = FindProperty(name, properties, false);
-		if (property != null) {
-			property.floatValue = value;
-			return true;
-		}
-		return false;
-	}
-
-    void SetKeyword (string keyword, bool enabled) {
-		if (enabled) {
-			foreach (Material m in materials) {
-				m.EnableKeyword(keyword);
-			}
-		}
-		else {
-			foreach (Material m in materials) {
-				m.DisableKeyword(keyword);
-			}
-		}
-	}
-
-    void SetProperty (string name, string keyword, bool value) {
-		if (SetProperty(name, value ? 1f : 0f)) {
-			SetKeyword(keyword, value);
-		}
-	}
-
-    bool Clipping {
+	bool Clipping {
 		set => SetProperty("_Clipping", "_CLIPPING", value);
 	}
+
+	bool HasPremultiplyAlpha => HasProperty("_PremulAlpha");
 
 	bool PremultiplyAlpha {
 		set => SetProperty("_PremulAlpha", "_PREMULTIPLY_ALPHA", value);
@@ -75,7 +32,7 @@ public class CustomShaderGUI : ShaderGUI {
 		set => SetProperty("_ZWrite", value ? 1f : 0f);
 	}
 
-    RenderQueue RenderQueue {
+	RenderQueue RenderQueue {
 		set {
 			foreach (Material m in materials) {
 				m.renderQueue = (int)value;
@@ -83,20 +40,25 @@ public class CustomShaderGUI : ShaderGUI {
 		}
 	}
 
-    bool HasProperty (string name) =>
-		FindProperty(name, properties, false) != null;
+	public override void OnGUI (
+		MaterialEditor materialEditor, MaterialProperty[] properties
+	) {
+		base.OnGUI(materialEditor, properties);
+		editor = materialEditor;
+		materials = materialEditor.targets;
+		this.properties = properties;
 
-    bool HasPremultiplyAlpha => HasProperty("_PremulAlpha");
-
-    bool PresetButton (string name) {
-		if (GUILayout.Button(name)) {
-			editor.RegisterPropertyChangeUndo(name);
-			return true;
+		EditorGUILayout.Space();
+		showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
+		if (showPresets) {
+			OpaquePreset();
+			ClipPreset();
+			FadePreset();
+			TransparentPreset();
 		}
-		return false;
 	}
 
-    void OpaquePreset () {
+	void OpaquePreset () {
 		if (PresetButton("Opaque")) {
 			Clipping = false;
 			PremultiplyAlpha = false;
@@ -107,7 +69,7 @@ public class CustomShaderGUI : ShaderGUI {
 		}
 	}
 
-    void ClipPreset () {
+	void ClipPreset () {
 		if (PresetButton("Clip")) {
 			Clipping = true;
 			PremultiplyAlpha = false;
@@ -118,7 +80,7 @@ public class CustomShaderGUI : ShaderGUI {
 		}
 	}
 
-    void FadePreset () {
+	void FadePreset () {
 		if (PresetButton("Fade")) {
 			Clipping = false;
 			PremultiplyAlpha = false;
@@ -129,7 +91,7 @@ public class CustomShaderGUI : ShaderGUI {
 		}
 	}
 
-    void TransparentPreset () {
+	void TransparentPreset () {
 		if (HasPremultiplyAlpha && PresetButton("Transparent")) {
 			Clipping = false;
 			PremultiplyAlpha = true;
@@ -137,6 +99,45 @@ public class CustomShaderGUI : ShaderGUI {
 			DstBlend = BlendMode.OneMinusSrcAlpha;
 			ZWrite = false;
 			RenderQueue = RenderQueue.Transparent;
+		}
+	}
+
+	bool PresetButton (string name) {
+		if (GUILayout.Button(name)) {
+			editor.RegisterPropertyChangeUndo(name);
+			return true;
+		}
+		return false;
+	}
+
+	bool HasProperty (string name) =>
+		FindProperty(name, properties, false) != null;
+
+	void SetProperty (string name, string keyword, bool value) {
+		if (SetProperty(name, value ? 1f : 0f)) {
+			SetKeyword(keyword, value);
+		}
+	}
+
+	bool SetProperty (string name, float value) {
+		MaterialProperty property = FindProperty(name, properties, false);
+		if (property != null) {
+			property.floatValue = value;
+			return true;
+		}
+		return false;
+	}
+
+	void SetKeyword (string keyword, bool enabled) {
+		if (enabled) {
+			foreach (Material m in materials) {
+				m.EnableKeyword(keyword);
+			}
+		}
+		else {
+			foreach (Material m in materials) {
+				m.DisableKeyword(keyword);
+			}
 		}
 	}
 }

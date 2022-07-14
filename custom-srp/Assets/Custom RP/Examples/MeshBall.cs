@@ -7,10 +7,6 @@ public class MeshBall : MonoBehaviour {
 		metallicId = Shader.PropertyToID("_Metallic"),
 		smoothnessId = Shader.PropertyToID("_Smoothness");
 
-	float[]
-		metallic = new float[1023],
-		smoothness = new float[1023];
-
 	[SerializeField]
 	Mesh mesh = default;
 
@@ -19,6 +15,9 @@ public class MeshBall : MonoBehaviour {
 	
 	Matrix4x4[] matrices = new Matrix4x4[1023];
 	Vector4[] baseColors = new Vector4[1023];
+	float[]
+		metallic = new float[1023],
+		smoothness = new float[1023];
 
 	MaterialPropertyBlock block;
 

@@ -3,7 +3,8 @@
 [DisallowMultipleComponent]
 public class PerObjectMaterialProperties : MonoBehaviour {
 
-	static int baseColorId = Shader.PropertyToID("_BaseColor"),
+	static int
+		baseColorId = Shader.PropertyToID("_BaseColor"),
 		cutoffId = Shader.PropertyToID("_Cutoff"),
 		metallicId = Shader.PropertyToID("_Metallic"),
 		smoothnessId = Shader.PropertyToID("_Smoothness");
