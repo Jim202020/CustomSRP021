@@ -7,9 +7,13 @@ public class CustomRenderPipeline : RenderPipeline {
 
 	bool useDynamicBatching, useGPUInstancing;
 
+	ShadowSettings shadowSettings;
+
 	public CustomRenderPipeline (
-		bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher
+		bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher,
+		ShadowSettings shadowSettings
 	) {
+		this.shadowSettings = shadowSettings;
 		this.useDynamicBatching = useDynamicBatching;
 		this.useGPUInstancing = useGPUInstancing;
 		GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
