@@ -20,6 +20,7 @@ public partial class CameraRenderer {
 	CullingResults cullingResults;
 
 	Lighting lighting = new Lighting();
+	Shadows shadows = new Shadows();
 
 	public void Render (
 		ScriptableRenderContext context, Camera camera,
@@ -35,6 +36,7 @@ public partial class CameraRenderer {
 		}
 
 		Setup();
+		shadows.Setup(context, cullingResults,shadowSettings);
 		lighting.Setup(context, cullingResults,shadowSettings);
 		DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
 		DrawUnsupportedShaders();
