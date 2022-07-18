@@ -15,6 +15,27 @@ public class Shadows {
 
 	ShadowSettings settings;
 
+	const int maxShadowedDirectionalLightCount = 1;
+	int ShadowedDirectionalLightCount;
+
+	struct ShadowedDirectionalLight {
+		public int visibleLightIndex;
+	}
+
+	ShadowedDirectionalLight[] ShadowedDirectionalLights =
+		new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
+
+	public void ReserveDirectionalShadows (Light light, int visibleLightIndex) {
+		if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount  &&
+			light.shadows != LightShadows.None && light.shadowStrength > 0f &&
+			cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
+			ShadowedDirectionalLights[ShadowedDirectionalLightCount++] =
+				new ShadowedDirectionalLight {
+					visibleLightIndex = visibleLightIndex
+				};
+		}
+	}
+
 	public void Setup (
 		ScriptableRenderContext context, CullingResults cullingResults,
 		ShadowSettings settings
@@ -22,6 +43,7 @@ public class Shadows {
 		this.context = context;
 		this.cullingResults = cullingResults;
 		this.settings = settings;
+		ShadowedDirectionalLightCount = 0;
 	}
 
 	void ExecuteBuffer () {
