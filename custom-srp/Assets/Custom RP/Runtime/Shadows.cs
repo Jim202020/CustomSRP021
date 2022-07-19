@@ -16,7 +16,8 @@ public class Shadows {
 	ShadowSettings settings;
 
 	const int maxShadowedDirectionalLightCount = 1;
-	int ShadowedDirectionalLightCount;
+	int shadowedDirLightCount;
+	static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
 
 	struct ShadowedDirectionalLight {
 		public int visibleLightIndex;
@@ -26,14 +27,41 @@ public class Shadows {
 		new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
 
 	public void ReserveDirectionalShadows (Light light, int visibleLightIndex) {
-		if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount  &&
+		if (shadowedDirLightCount < maxShadowedDirectionalLightCount  &&
 			light.shadows != LightShadows.None && light.shadowStrength > 0f &&
 			cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
-			ShadowedDirectionalLights[ShadowedDirectionalLightCount++] =
+			ShadowedDirectionalLights[shadowedDirLightCount++] =
 				new ShadowedDirectionalLight {
 					visibleLightIndex = visibleLightIndex
 				};
 		}
+	}
+
+	public void Render () {
+		if (shadowedDirLightCount > 0) {
+			RenderDirectionalShadows();
+		}
+		else {
+			buffer.GetTemporaryRT(
+				dirShadowAtlasId, 1, 1,
+				32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap
+			);
+		}
+	}
+
+	void RenderDirectionalShadows () {
+		int atlasSize = (int)settings.directional.atlasSize;
+		buffer.GetTemporaryRT(
+			dirShadowAtlasId, atlasSize, atlasSize,
+			32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap
+		);
+
+		buffer.SetRenderTarget(
+			dirShadowAtlasId,
+			RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store
+		);
+		buffer.ClearRenderTarget(true, false, Color.clear);
+		ExecuteBuffer();
 	}
 
 	public void Setup (
@@ -43,11 +71,16 @@ public class Shadows {
 		this.context = context;
 		this.cullingResults = cullingResults;
 		this.settings = settings;
-		ShadowedDirectionalLightCount = 0;
+		shadowedDirLightCount = 0;
 	}
 
 	void ExecuteBuffer () {
 		context.ExecuteCommandBuffer(buffer);
 		buffer.Clear();
+	}
+
+	public void Cleanup () {
+		buffer.ReleaseTemporaryRT(dirShadowAtlasId);
+		ExecuteBuffer();
 	}
 }
