@@ -19,6 +19,7 @@ CBUFFER_END
 struct DirectionalShadowData {
 	float strength;
 	int tileIndex;
+	float normalBias;
 };
 
 struct ShadowData {
@@ -66,7 +67,7 @@ float GetDirectionalShadowAttenuation (DirectionalShadowData directional, Shadow
 	if (directional.strength <= 0.0) {
 		return 1.0;
 	}
-	float3 normalBias = surfaceWS.normal * _CascadeData[global.cascadeIndex].y;
+	float3 normalBias = surfaceWS.normal * (directional.normalBias * _CascadeData[global.cascadeIndex].y);
 	float3 positionSTS = mul(
 		_DirectionalShadowMatrices[directional.tileIndex],
 		float4(surfaceWS.position + normalBias, 1.0)

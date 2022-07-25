@@ -33,26 +33,28 @@ public class Shadows {
 
 	struct ShadowedDirectionalLight {
 		public int visibleLightIndex;
+		public float slopeScaleBias;
 	}
 
 	ShadowedDirectionalLight[] ShadowedDirectionalLights =
 		new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
 
-	public Vector2 ReserveDirectionalShadows (Light light, int visibleLightIndex) {
+	public Vector3 ReserveDirectionalShadows (Light light, int visibleLightIndex) {
 		if (shadowedDirLightCount < maxShadowedDirectionalLightCount  &&
 			light.shadows != LightShadows.None && light.shadowStrength > 0f &&
 			cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
 			ShadowedDirectionalLights[shadowedDirLightCount] =
 				new ShadowedDirectionalLight {
-					visibleLightIndex = visibleLightIndex
+					visibleLightIndex = visibleLightIndex,
+					slopeScaleBias = light.shadowBias
 				};
 
-			return new Vector2(
-				light.shadowStrength, settings.directional.cascadeCount * shadowedDirLightCount++
+			return new Vector3(
+				light.shadowStrength, settings.directional.cascadeCount * shadowedDirLightCount++,light.shadowNormalBias
 			);
 		}
 
-		return Vector2.zero;
+		return Vector3.zero;
 	}
 
 	public void Render () {
@@ -130,8 +132,10 @@ public class Shadows {
 				SetTileViewport(tileIndex, split, tileSize), split
 			);
 			buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+			buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
 			ExecuteBuffer();
 			context.DrawShadows(ref shadowSettings);
+			buffer.SetGlobalDepthBias(0f, 0f);
 		}
 	}
 
