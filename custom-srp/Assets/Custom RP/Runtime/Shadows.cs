@@ -34,6 +34,7 @@ public class Shadows {
 	struct ShadowedDirectionalLight {
 		public int visibleLightIndex;
 		public float slopeScaleBias;
+		public float nearPlaneOffset;
 	}
 
 	ShadowedDirectionalLight[] ShadowedDirectionalLights =
@@ -46,7 +47,8 @@ public class Shadows {
 			ShadowedDirectionalLights[shadowedDirLightCount] =
 				new ShadowedDirectionalLight {
 					visibleLightIndex = visibleLightIndex,
-					slopeScaleBias = light.shadowBias
+					slopeScaleBias = light.shadowBias,
+					nearPlaneOffset = light.shadowNearPlane
 				};
 
 			return new Vector3(
@@ -118,7 +120,7 @@ public class Shadows {
 		
 		for (int i = 0; i < cascadeCount; i++) {
 			cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
-				light.visibleLightIndex, i, cascadeCount, ratios, tileSize, 0f,
+				light.visibleLightIndex, i, cascadeCount, ratios, tileSize, light.nearPlaneOffset,
 				out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix,
 				out ShadowSplitData splitData
 			);
