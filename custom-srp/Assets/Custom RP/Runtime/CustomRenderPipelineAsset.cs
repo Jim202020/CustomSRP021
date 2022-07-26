@@ -12,7 +12,7 @@ public class CustomRenderPipelineAsset : RenderPipelineAsset {
 
 	protected override RenderPipeline CreatePipeline () {
 		return new CustomRenderPipeline(
-			useDynamicBatching, useGPUInstancing, useSRPBatcher,shadows
+			useDynamicBatching, useGPUInstancing, useSRPBatcher, shadows
 		);
 	}
 }

@@ -1,4 +1,4 @@
-#ifndef CUSTOM_SHADOWS_INCLUDED
+﻿#ifndef CUSTOM_SHADOWS_INCLUDED
 #define CUSTOM_SHADOWS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
@@ -25,16 +25,11 @@ CBUFFER_START(_CustomShadows)
 	int _CascadeCount;
 	float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
 	float4 _CascadeData[MAX_CASCADE_COUNT];
-	float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT ];
+	float4x4 _DirectionalShadowMatrices
+		[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
 	float4 _ShadowAtlasSize;
 	float4 _ShadowDistanceFade;
 CBUFFER_END
-
-struct DirectionalShadowData {
-	float strength;
-	int tileIndex;
-	float normalBias;
-};
 
 struct ShadowData {
 	int cascadeIndex;
@@ -69,7 +64,7 @@ ShadowData GetShadowData (Surface surfaceWS) {
 			break;
 		}
 	}
-
+	
 	if (i == _CascadeCount) {
 		data.strength = 0.0;
 	}
@@ -84,6 +79,12 @@ ShadowData GetShadowData (Surface surfaceWS) {
 	data.cascadeIndex = i;
 	return data;
 }
+
+struct DirectionalShadowData {
+	float strength;
+	int tileIndex;
+	float normalBias;
+};
 
 float SampleDirectionalShadowAtlas (float3 positionSTS) {
 	return SAMPLE_TEXTURE2D_SHADOW(
@@ -109,15 +110,17 @@ float FilterDirectionalShadow (float3 positionSTS) {
 	#endif
 }
 
-float GetDirectionalShadowAttenuation (DirectionalShadowData directional, ShadowData global, Surface surfaceWS) {
+float GetDirectionalShadowAttenuation (
+	DirectionalShadowData directional, ShadowData global, Surface surfaceWS
+) {
 	#if !defined(_RECEIVE_SHADOWS)
 		return 1.0;
 	#endif
-	
 	if (directional.strength <= 0.0) {
 		return 1.0;
 	}
-	float3 normalBias = surfaceWS.normal * (directional.normalBias * _CascadeData[global.cascadeIndex].y);
+	float3 normalBias = surfaceWS.normal *
+		(directional.normalBias * _CascadeData[global.cascadeIndex].y);
 	float3 positionSTS = mul(
 		_DirectionalShadowMatrices[directional.tileIndex],
 		float4(surfaceWS.position + normalBias, 1.0)

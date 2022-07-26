@@ -23,7 +23,8 @@ public partial class CameraRenderer {
 
 	public void Render (
 		ScriptableRenderContext context, Camera camera,
-		bool useDynamicBatching, bool useGPUInstancing,ShadowSettings shadowSettings
+		bool useDynamicBatching, bool useGPUInstancing,
+		ShadowSettings shadowSettings
 	) {
 		this.context = context;
 		this.camera = camera;
@@ -33,7 +34,7 @@ public partial class CameraRenderer {
 		if (!Cull(shadowSettings.maxDistance)) {
 			return;
 		}
-
+		
 		buffer.BeginSample(SampleName);
 		ExecuteBuffer();
 		lighting.Setup(context, cullingResults, shadowSettings);
@@ -48,7 +49,7 @@ public partial class CameraRenderer {
 
 	bool Cull (float maxShadowDistance) {
 		if (camera.TryGetCullingParameters(out ScriptableCullingParameters p)) {
-			p.shadowDistance = Mathf.Min(maxShadowDistance,camera.farClipPlane);
+			p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
 			cullingResults = context.Cull(ref p);
 			return true;
 		}
